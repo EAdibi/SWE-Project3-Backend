@@ -43,7 +43,7 @@ QuizWhiz is a web-based flashcard application that will allow users to create, e
 1. Clone the repository:
     ```sh
     git clone https://github.com/EAdibi/SWE-Project-3-Backend.git
-    cd QuizWhiz_Backend
+    cd SWE-Project-3-Backend
     ```
 
 2. Create a virtual environment:
