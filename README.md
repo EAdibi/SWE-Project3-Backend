@@ -48,8 +48,8 @@ QuizWhiz is a web-based flashcard application that will allow users to create, e
 
 2. Create a virtual environment:
     ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     ```
 
 3. Install the required packages:
