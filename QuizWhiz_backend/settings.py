@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'users',
+    'drf_yasg',
+    'rest_framework_swagger'
 ]
 
 MIDDLEWARE = [
