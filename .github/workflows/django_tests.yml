@@ -40,7 +40,7 @@ jobs:
 
     - name: Run Migrations
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        DATABASE_URL: postgresql://postgres:postgres@db:5432/test_db
       run: |
         python manage.py migrate
 
