@@ -151,3 +151,17 @@ def signup(request):
     User.objects.create_user(username=username, password=password, email=email, google_id=google_id, bio=bio)
 
     return Response({'message': 'User created successfully'}, status=201)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_by_id(request, user_id):
+    """
+    Get user details by ID
+    """
+    requesting_user = request.user
+    if not requesting_user.is_staff and requesting_user.id != user_id:
+        return Response({'error': 'You do not have permission to view this user'}, status=403)
+
+    user = User.objects.get(id=user_id)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
