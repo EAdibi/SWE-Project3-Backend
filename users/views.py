@@ -60,3 +60,17 @@ def login(request):
         'access': str(refresh.access_token),
         'user': UserSerializer(user).data
     })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    """
+    Logout a user by blacklisting their refresh token
+    """
+    try:
+        refresh_token = request.data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({"detail": "Logout successful"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
