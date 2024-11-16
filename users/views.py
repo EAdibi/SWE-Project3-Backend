@@ -61,6 +61,21 @@ def login(request):
         'user': UserSerializer(user).data
     })
 
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='Refresh token')
+        },
+        required=['refresh']
+    ),
+    responses={
+        200: 'Logout successful',
+        401: 'Invalid credentials'
+    },
+    security=[{'Bearer': []}],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
