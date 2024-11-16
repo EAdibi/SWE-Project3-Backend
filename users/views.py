@@ -11,6 +11,25 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from .serializers import UserSerializer
 # Create your views here.
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
+        },
+        required=['username', 'password']
+    ),
+    responses={
+        200: 'Login successful',
+        401: 'Invalid credentials'
+    }
+)
+@api_view(['POST'])
+def login(request):
+    """
+    Login a user using username and password
 
     """
     username = request.data.get('username')
