@@ -107,3 +107,40 @@ def get_user(request):
     user = request.user
     serializer = UserSerializer(user)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email'),
+            'google_id': openapi.Schema(type=openapi.TYPE_STRING, description='Google ID'),
+        }, required=['username', 'password', 'email']
+    ),
+    responses={
+        201: 'User created successfully',
+        400: 'Invalid user details'
+    }
+)
+@api_view(['POST'])
+def signup(request):
+    """
+    Register a new user
+    """
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email')
+    google_id = request.data.get('google_id') if 'google_id' in request.data else None
+    bio = request.data.get('bio') if 'bio' in request.data else None
+
+    if username is None or password is None:
+        return Response({'error': 'Please provide both username and password'}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+
+    User.objects.create_user(username=username, password=password, email=email, google_id=google_id, bio=bio)
+
+    return Response({'message': 'User created successfully'}, status=201)
