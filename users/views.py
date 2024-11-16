@@ -11,6 +11,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from .serializers import UserSerializer
 # Create your views here.
+@api_view(['GET'])
+# This should be changed to IsAdminUser later, when using a cloud db
+@permission_classes([IsAuthenticated])
+def list_users(request):
+    """
+    List all users (Admin only)
+    """
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
 @swagger_auto_schema(
     method='post',
     request_body=openapi.Schema(
