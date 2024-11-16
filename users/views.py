@@ -177,3 +177,63 @@ def get_user_by_id(request, user_id):
     user = User.objects.get(id=user_id)
     serializer = UserSerializer(user)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='patch',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='User ID'),
+            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
+            'google_id': openapi.Schema(type=openapi.TYPE_STRING, description='Google ID'),
+            'bio': openapi.Schema(type=openapi.TYPE_STRING, description='Bio')
+       }, required=['user_id']
+    ),
+    responses={
+        200: 'User updated successfully',
+        400: 'Invalid user details',
+        403: 'You do not have permission to update this user'
+    },
+    security=[{'Bearer': []}],
+)
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    """
+    Update user details. Note that if the user's password is changed, they will be logged out, and the frontend should delete their access and refresh tokens and redirect them to the login page
+    """
+    user = request.user
+    user_data = request.data
+    print(user_data)
+
+    if not user_data:
+        return Response({'error': 'Please provide details to update'}, status=400)
+
+    # If the user is trying to change someone else's details
+    if 'user_id' in user_data and user_data['user_id'] != user.id:
+        if not user.is_staff:
+            return Response({'error': 'You do not have permission to update this user'}, status=403)
+
+
+    if 'password' in user_data:
+        user.set_password(user_data['password'])
+        user_data.pop('password')
+
+        # If the password is changed, the user should be logged out
+        refresh_token = RefreshToken.for_user(user)
+        refresh_token.blacklist()
+
+    if 'email' in user_data:
+        try:
+            validate_email(user_data['email'])
+        except Exception as e:
+            return Response({'error': 'Invalid email'}, status=400)
+
+    # Update the user data
+    for key, value in user_data.items():
+        setattr(user, key, value)
+
+    user.save()
+    return Response(UserSerializer(user).data)
