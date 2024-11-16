@@ -1,6 +1,7 @@
 from django.shortcuts import render
 # import check_password
 from django.contrib.auth import authenticate
+from django.core.validators import validate_email
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import permission_classes, api_view
@@ -116,6 +117,7 @@ def get_user(request):
             'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
             'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email'),
+            'bio': openapi.Schema(type=openapi.TYPE_STRING, description='Bio'),
             'google_id': openapi.Schema(type=openapi.TYPE_STRING, description='Google ID'),
         }, required=['username', 'password', 'email']
     ),
@@ -140,6 +142,11 @@ def signup(request):
 
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=400)
+
+    try:
+        validate_email(email)
+    except Exception as e:
+        return Response({'error': 'Invalid email'}, status=400)
 
     User.objects.create_user(username=username, password=password, email=email, google_id=google_id, bio=bio)
 
