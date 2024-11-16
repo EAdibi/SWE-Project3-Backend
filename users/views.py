@@ -89,3 +89,21 @@ def logout(request):
         return Response({"detail": "Logout successful"}, status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+
+
+@swagger_auto_schema(
+    method='get',
+    responses={
+        200: 'User details'
+    },
+    security=[{'Bearer': []}],
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user(request):
+    """
+    Get details for the current user
+    """
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
