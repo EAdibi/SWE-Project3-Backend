@@ -152,6 +152,18 @@ def signup(request):
 
     return Response({'message': 'User created successfully'}, status=201)
 
+@swagger_auto_schema(
+    method='get',
+    manual_parameters=[
+        openapi.Parameter(
+            'user_id', openapi.IN_PATH, type=openapi.TYPE_INTEGER, required=True, description='User ID'
+        )
+    ],
+    responses={
+        200: 'User details'
+    },
+    security=[{'Bearer': []}],
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_by_id(request, user_id):
