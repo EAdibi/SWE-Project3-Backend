@@ -206,7 +206,6 @@ def update_user(request):
     """
     user = request.user
     user_data = request.data
-    print(user_data)
 
     if not user_data:
         return Response({'error': 'Please provide details to update'}, status=400)
@@ -215,14 +214,16 @@ def update_user(request):
     if 'user_id' in user_data and user_data['user_id'] != user.id:
         if not user.is_staff:
             return Response({'error': 'You do not have permission to update this user'}, status=403)
-
+        user_to_update = User.objects.get(id=user_data['user_id'])
+    else:
+        user_to_update = user
 
     if 'password' in user_data:
-        user.set_password(user_data['password'])
+        user_to_update.set_password(user_data['password'])
         user_data.pop('password')
 
         # If the password is changed, the user should be logged out
-        refresh_token = RefreshToken.for_user(user)
+        refresh_token = RefreshToken.for_user(user_to_update)
         refresh_token.blacklist()
 
     if 'email' in user_data:
@@ -233,10 +234,10 @@ def update_user(request):
 
     # Update the user data
     for key, value in user_data.items():
-        setattr(user, key, value)
+        setattr(user_to_update, key, value)
 
-    user.save()
-    return Response(UserSerializer(user).data)
+    user_to_update.save()
+    return Response(UserSerializer(user_to_update).data)
 
 @swagger_auto_schema(
     method='delete',
