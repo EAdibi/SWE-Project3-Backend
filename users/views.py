@@ -183,7 +183,7 @@ def get_user_by_id(request, user_id):
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='User ID'),
+            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='User ID to update'),
             'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
             'email': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
@@ -237,3 +237,35 @@ def update_user(request):
 
     user.save()
     return Response(UserSerializer(user).data)
+
+@swagger_auto_schema(
+    method='delete',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='User ID to delete')
+        },
+        required=['user_id']
+    ),
+    responses={
+        200: 'User deleted successfully',
+        403: 'You do not have permission to delete this user'
+    },
+    security=[{'Bearer': []}],
+)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request):
+    """
+    Delete a user
+    """
+    user = request.user
+    user_id_to_delete = request.data.get('user_id')
+    if not user.is_staff and user.id != user_id_to_delete:
+        return Response({'error': 'You do not have permission to delete this user'}, status=403)
+
+    user_to_delete = User.objects.get(id=user_id_to_delete)
+    if user_to_delete is None:
+        return Response({'error': 'User not found'}, status=404)
+    user_to_delete.delete()
+    return Response({'message': 'User deleted successfully'}, status=200)
