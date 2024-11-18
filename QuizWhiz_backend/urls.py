@@ -22,7 +22,7 @@ from drf_yasg import openapi
 from allauth import urls as auth_urls
 
 from demo import urls as demo_urls
-# from users import urls as users_urls
+from users import urls as users_urls
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -38,6 +38,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('demo/', include(demo_urls)),
     path('auth/', include(auth_urls)),
-    # path('users/', include(users_urls)),
+    path('users/', include(users_urls)),
 ]
 
