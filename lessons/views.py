@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from drf_yasg import openapi
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -194,6 +196,7 @@ def update_lesson(request):
         lesson.category = category
 
     lesson.is_public = is_public
+    lesson.updated_at = datetime.now()
     lesson.save()
 
     serializer = LessonSerializer(lesson)
