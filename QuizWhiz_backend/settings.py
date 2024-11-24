@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'users',
+    'lessons',
     'drf_yasg',
     'rest_framework_swagger',
     'rest_framework_simplejwt.token_blacklist',
