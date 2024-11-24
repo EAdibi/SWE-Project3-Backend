@@ -84,3 +84,25 @@ def list_public_lessons(request):
     lessons = Lesson.objects.filter(is_public=True)
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='get',
+    responses={
+        200: 'List of public lessons created by a specified user',
+        401: 'Invalid credentials'
+    }
+)
+@api_view(['GET'])
+def list_lessons_by_user(request, user_id):
+    """
+    List all public lessons created by a specified user
+    """
+    if not User.objects.filter(id=user_id).exists():
+        return Response({'error': 'User not found'}, status=401)
+
+    if request.user.is_staff or request.user.id == user_id:
+        lessons = Lesson.objects.filter(created_by=user_id)
+    else:
+        lessons = Lesson.objects.filter(created_by=user_id, is_public=True)
+    serializer = LessonSerializer(lessons, many=True)
+    return Response(serializer.data)
