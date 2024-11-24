@@ -129,6 +129,25 @@ def list_lessons_by_category(request, category):
     return Response(serializer.data)
 
 @swagger_auto_schema(
+    method='get',
+    responses={
+        200: 'List of lessons created containing keywords',
+        401: 'Unauthorized'
+    }
+)
+@api_view(['GET'])
+def list_lessons_by_keywords(request, keywords):
+    """
+    List all lessons created containing keywords
+    """
+    keywords = keywords.split()
+    lessons = Lesson.objects.filter(title__icontains=keywords[0])
+    for keyword in keywords[1:]:
+        lessons = lessons | Lesson.objects.filter(title__icontains=keyword)
+    serializer = LessonSerializer(lessons, many=True)
+    return Response(serializer.data)
+
+@swagger_auto_schema(
     method='patch',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
