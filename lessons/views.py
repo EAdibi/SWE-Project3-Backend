@@ -68,3 +68,19 @@ def create_lesson(request):
     lesson = Lesson.objects.create(title=title, description=description, category=category, created_by=request.user, is_public=is_public)
     serializer = LessonSerializer(lesson)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='get',
+    responses={
+        200: 'List of public lessons',
+        401: 'Invalid credentials'
+    }
+)
+@api_view(['GET'])
+def list_public_lessons(request):
+    """
+    List all public lessons
+    """
+    lessons = Lesson.objects.filter(is_public=True)
+    serializer = LessonSerializer(lessons, many=True)
+    return Response(serializer.data)
