@@ -1,18 +1,14 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate
-from django.core.validators import validate_email
+from drf_yasg import openapi
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import permission_classes, api_view
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 
+from users.models import User
 # Create your views here.
 from .models import Lesson
-from users.models import User
 from .serializers import LessonSerializer
-
 
 
 @swagger_auto_schema(
@@ -33,6 +29,7 @@ def list_lessons(request):
     lessons = Lesson.objects.all()
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
 
 @swagger_auto_schema(
     method='post',
@@ -65,9 +62,11 @@ def create_lesson(request):
     if title is None or description is None or category is None:
         return Response({'error': 'Please provide title, description and category'}, status=401)
 
-    lesson = Lesson.objects.create(title=title, description=description, category=category, created_by=request.user, is_public=is_public)
+    lesson = Lesson.objects.create(title=title, description=description, category=category, created_by=request.user,
+                                   is_public=is_public)
     serializer = LessonSerializer(lesson)
     return Response(serializer.data)
+
 
 @swagger_auto_schema(
     method='get',
@@ -84,6 +83,7 @@ def list_public_lessons(request):
     lessons = Lesson.objects.filter(is_public=True)
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
 
 @swagger_auto_schema(
     method='get',
@@ -107,6 +107,7 @@ def list_lessons_by_user(request, user_id):
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
 
+
 @swagger_auto_schema(
     method='get',
     responses={
@@ -128,6 +129,7 @@ def list_lessons_by_category(request, category):
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
 
+
 @swagger_auto_schema(
     method='get',
     responses={
@@ -146,6 +148,7 @@ def list_lessons_by_keywords(request, keywords):
         lessons = lessons | Lesson.objects.filter(title__icontains=keyword)
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
 
 @swagger_auto_schema(
     method='patch',
@@ -195,3 +198,34 @@ def update_lesson(request):
 
     serializer = LessonSerializer(lesson)
     return Response(serializer.data)
+
+
+@swagger_auto_schema(
+    method='delete',
+    responses={
+        200: 'Lesson deleted',
+        401: 'Unauthorized'
+    },
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'lesson_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='Lesson ID'),
+        }
+    )
+)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_lesson(request):
+    """
+    Delete a lesson
+    """
+    lesson_id = request.data.get('lesson_id')
+    if lesson_id is None:
+        return Response({'error': 'Please provide lesson_id'}, status=401)
+
+    lesson = Lesson.objects.get(id=lesson_id)
+    if lesson.created_by != request.user and not request.user.is_staff:
+        return Response({'error': 'Unauthorized'}, status=401)
+
+    lesson.delete()
+    return Response({'message': 'Lesson deleted successfully'})
