@@ -33,3 +33,38 @@ def list_lessons(request):
     lessons = Lesson.objects.all()
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Title'),
+            'description': openapi.Schema(type=openapi.TYPE_STRING, description='Description'),
+            'category': openapi.Schema(type=openapi.TYPE_STRING, description='Category'),
+            'is_public': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Is the lesson publically available?'),
+        },
+        required=['title', 'description', 'category']
+    ),
+    responses={
+        200: 'Lesson created',
+        401: 'Unauthorized'
+    }
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_lesson(request):
+    """
+    Create a lesson
+    """
+    title = request.data.get('title')
+    description = request.data.get('description')
+    category = request.data.get('category')
+    is_public = request.data.get('is_public', False)
+
+    if title is None or description is None or category is None:
+        return Response({'error': 'Please provide title, description and category'}, status=401)
+
+    lesson = Lesson.objects.create(title=title, description=description, category=category, created_by=request.user, is_public=is_public)
+    serializer = LessonSerializer(lesson)
+    return Response(serializer.data)
