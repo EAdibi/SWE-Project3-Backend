@@ -106,3 +106,52 @@ def list_lessons_by_user(request, user_id):
         lessons = Lesson.objects.filter(created_by=user_id, is_public=True)
     serializer = LessonSerializer(lessons, many=True)
     return Response(serializer.data)
+
+@swagger_auto_schema(
+    method='patch',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'lesson_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='Lesson ID'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Title'),
+            'description': openapi.Schema(type=openapi.TYPE_STRING, description='Description'),
+            'category': openapi.Schema(type=openapi.TYPE_STRING, description='Category'),
+            'is_public': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Is the lesson publically available?'),
+        }
+    ),
+    responses={
+        200: 'Lesson updated',
+        401: 'Unauthorized'
+    }
+)
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_lesson(request):
+    """
+    Update a lesson
+    """
+    lesson_id = request.data.get('lesson_id')
+    title = request.data.get('title')
+    description = request.data.get('description')
+    category = request.data.get('category')
+    is_public = request.data.get('is_public', False)
+
+    if lesson_id is None:
+        return Response({'error': 'Please provide lesson_id'}, status=401)
+
+    lesson = Lesson.objects.get(id=lesson_id)
+    if lesson.created_by != request.user and not request.user.is_staff:
+        return Response({'error': 'Unauthorized'}, status=401)
+
+    if title is not None:
+        lesson.title = title
+    if description is not None:
+        lesson.description = description
+    if category is not None:
+        lesson.category = category
+
+    lesson.is_public = is_public
+    lesson.save()
+
+    serializer = LessonSerializer(lesson)
+    return Response(serializer.data)
