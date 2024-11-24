@@ -108,6 +108,27 @@ def list_lessons_by_user(request, user_id):
     return Response(serializer.data)
 
 @swagger_auto_schema(
+    method='get',
+    responses={
+        200: 'List of lessons created by category',
+        401: 'Unauthorized'
+    }
+)
+@api_view(['GET'])
+def list_lessons_by_category(request, category):
+    """
+    List all lessons created by category
+    """
+    category = category.title()
+
+    if request.user.is_staff:
+        lessons = Lesson.objects.filter(category=category)
+    else:
+        lessons = Lesson.objects.filter(category=category, is_public=True)
+    serializer = LessonSerializer(lessons, many=True)
+    return Response(serializer.data)
+
+@swagger_auto_schema(
     method='patch',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
