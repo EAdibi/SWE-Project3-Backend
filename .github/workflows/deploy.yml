@@ -42,7 +42,7 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag linguatile-backend us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/quizwhiz-backend/quizwhiz-backend
+          docker tag quizwhiz-backend us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/quizwhiz-backend/quizwhiz-backend
 
       - name: Push Docker image to Google Artifact Registry
         run: |
