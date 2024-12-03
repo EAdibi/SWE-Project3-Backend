@@ -5,9 +5,12 @@ from django.conf import settings #reference AUTH_USER_MODEL
 class Flashcard(models.Model):
     front_text = models.TextField()
     back_text = models.TextField()
-    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name='flashcards') #link to lesson
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE, related_name='flashcards') #link to lesson
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) #link to user
 
     #Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.front_text
