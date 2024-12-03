@@ -18,7 +18,7 @@ class FlashcardModelTest(TestCase):
             title="Sample Lesson",
             description="Description of the lesson",
             category="Category",
-            user=self.user,
+            created_by=self.user,
             is_public=True
         )
 
