@@ -8,5 +8,5 @@ class Lesson(models.Model):
     category = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lessons') #link to the user who created the lesson
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lessons') #link to the user who created the lesson
     is_public = models.BooleanField(default=False)
