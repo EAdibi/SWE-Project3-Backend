@@ -241,3 +241,12 @@ def get_top_categories(request):
     """
     categories = Lesson.objects.values('category').annotate(count=Count('category')).order_by('-count')[:4]
     return Response(categories)
+
+@api_view(['GET'])
+def get_lesson_by_id(request, id):
+    """
+    Get a lesson by ID
+    """
+    lesson = Lesson.objects.get(id=id)
+    serializer = LessonSerializer(lesson)
+    return Response(serializer.data)
