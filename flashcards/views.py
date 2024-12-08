@@ -40,3 +40,9 @@ class FlashcardListView(APIView):
         flashcards = Flashcard.objects.filter(lesson__is_public=True)
         serializer = FlashcardSerializer(flashcards, many=True)
         return Response(serializer.data)
+
+class FlashcardByLessonView(APIView):
+    def get(self, request, id):
+        flashcards = Flashcard.objects.filter(lesson=id)
+        serializer = FlashcardSerializer(flashcards, many=True)
+        return Response(serializer.data)
