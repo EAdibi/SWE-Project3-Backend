@@ -34,3 +34,9 @@ class FlashcardCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FlashcardListView(APIView):
+    def get(self, request):
+        flashcards = Flashcard.objects.filter(lesson__is_public=True)
+        serializer = FlashcardSerializer(flashcards, many=True)
+        return Response(serializer.data)

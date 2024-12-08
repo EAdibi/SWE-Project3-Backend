@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Count
 from drf_yasg import openapi
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -232,3 +233,11 @@ def delete_lesson(request):
 
     lesson.delete()
     return Response({'message': 'Lesson deleted successfully'})
+
+@api_view(['GET'])
+def get_top_categories(request):
+    """
+    Get the top 5 categories by number of lessons
+    """
+    categories = Lesson.objects.values('category').annotate(count=Count('category')).order_by('-count')[:4]
+    return Response(categories)
