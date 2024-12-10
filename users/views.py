@@ -170,10 +170,6 @@ def get_user_by_id(request, user_id):
     """
     Get user details by ID
     """
-    requesting_user = request.user
-    if not requesting_user.is_staff and requesting_user.id != user_id:
-        return Response({'error': 'You do not have permission to view this user'}, status=403)
-
     user = User.objects.get(id=user_id)
     serializer = UserSerializer(user)
     return Response(serializer.data)
